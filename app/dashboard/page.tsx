@@ -3,8 +3,8 @@ import { prisma } from '@/lib/prisma'
 import { Truck, Route, Wrench, Users, Percent, Activity } from 'lucide-react'
 import DashboardFilters from './components/DashboardFilters'
 
-export default async function DashboardPage({ searchParams }: { searchParams: { type?: string, status?: string } }) {
-  const { type, status } = searchParams;
+export default async function DashboardPage({ searchParams }: { searchParams: Promise<{ type?: string, status?: string }> }) {
+  const { type, status } = await searchParams;
 
   const vehicleWhereClause: any = {};
   if (type) vehicleWhereClause.type = type;

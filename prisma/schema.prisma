@@ -27,6 +27,7 @@ model Vehicle {
   trips              Trip[]
   maintenanceLogs    MaintenanceLog[]
   fuelLogs           FuelLog[]
+  documents          VehicleDocument[]
 }
 
 model Driver {
@@ -88,4 +89,14 @@ model Expense {
   description String
   amount      Float
   category    String   // Tolls, General, etc.
+}
+
+model VehicleDocument {
+  id        String   @id @default(uuid())
+  name      String
+  url       String
+  uploadedAt DateTime @default(now())
+
+  vehicleId String
+  vehicle   Vehicle @relation(fields: [vehicleId], references: [id])
 }
