@@ -1,0 +1,46 @@
+@media print {
+  /* Hide non-essential UI elements */
+  aside, .print-hidden, button {
+    display: none !important;
+  }
+  
+  /* Reset layout for printing */
+  main {
+    padding: 0 !important;
+    margin: 0 !important;
+    width: 100% !important;
+    height: auto !important;
+    overflow: visible !important;
+  }
+  
+  /* Force exact colors to preserve dark mode or light mode */
+  html, body {
+    background-color: var(--bg-primary) !important;
+    color: var(--text-primary) !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+  
+  /* Remove animated backgrounds */
+  .aurora-bg {
+    display: none !important;
+  }
+  
+  /* Solidify glass cards for print rendering */
+  .glass-card {
+    background-color: var(--bg-secondary) !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    border: 1px solid var(--border-color) !important;
+    box-shadow: none !important;
+    break-inside: avoid;
+    page-break-inside: avoid;
+    margin-bottom: 1.5rem !important;
+  }
+  
+  /* Ensure charts print correctly */
+  canvas {
+    max-width: 100% !important;
+    height: auto !important;
+  }
+}

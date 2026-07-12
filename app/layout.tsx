@@ -3,6 +3,7 @@ import { getSession } from "@/lib/auth";
 import Sidebar from "@/components/Sidebar";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import "./globals.css";
+import "./print.css";
 
 export const metadata: Metadata = {
   title: "TransitOps | Smart Transport Operations",
