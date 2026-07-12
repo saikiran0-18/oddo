@@ -4,9 +4,11 @@ import { prisma } from '@/lib/prisma'
 import { notFound } from 'next/navigation'
 import { EditDriverForm } from '../../components/EditDriverForm'
 
-export default async function EditDriverPage({ params }: { params: { id: string } }) {
+export default async function EditDriverPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params
+  
   const driver = await prisma.driver.findUnique({
-    where: { id: params.id }
+    where: { id }
   })
 
   if (!driver) {
