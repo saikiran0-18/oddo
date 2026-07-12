@@ -40,8 +40,13 @@ export async function createMaintenanceLog(formData: FormData) {
 }
 
 export async function closeMaintenanceLog(logId: string) {
-  const log = await prisma.maintenanceLog.findUnique({ where: { id: logId } })
+  const log = await prisma.maintenanceLog.findUnique({ 
+    where: { id: logId },
+    include: { vehicle: true } 
+  })
   if (!log) throw new Error("Log not found")
+
+  const newStatus = log.vehicle.status === 'Retired' ? 'Retired' : 'Available'
 
   await prisma.$transaction([
     prisma.maintenanceLog.update({
@@ -50,7 +55,7 @@ export async function closeMaintenanceLog(logId: string) {
     }),
     prisma.vehicle.update({
       where: { id: log.vehicleId },
-      data: { status: 'Available' }
+      data: { status: newStatus }
     })
   ])
 

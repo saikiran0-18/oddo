@@ -19,6 +19,9 @@ export async function createTrip(prevState: any, formData: FormData) {
   // Business Rule: Cargo Weight must not exceed the vehicle's maximum load capacity
   const vehicle = await prisma.vehicle.findUnique({ where: { id: vehicleId } })
   if (!vehicle) return { error: 'Vehicle not found.' }
+  if (vehicle.status !== 'Available') {
+    return { error: `Vehicle ${vehicle.registrationNumber} is not available (currently ${vehicle.status}).` }
+  }
   if (cargoWeight > vehicle.maxLoadCapacity) {
     return { error: `Cargo weight (${cargoWeight}kg) exceeds vehicle capacity (${vehicle.maxLoadCapacity}kg).` }
   }
