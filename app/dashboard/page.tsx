@@ -1,8 +1,15 @@
 export const dynamic = 'force-dynamic';
 import { prisma } from '@/lib/prisma'
 import { Truck, Route, Wrench, Users, Percent, Activity } from 'lucide-react'
+import DashboardFilters from './components/DashboardFilters'
 
-export default async function DashboardPage() {
+export default async function DashboardPage({ searchParams }: { searchParams: { type?: string, status?: string } }) {
+  const { type, status } = searchParams;
+
+  const vehicleWhereClause: any = {};
+  if (type) vehicleWhereClause.type = type;
+  if (status) vehicleWhereClause.status = status;
+
   const [
     vehicles,
     activeTrips,
@@ -11,7 +18,7 @@ export default async function DashboardPage() {
     completedTrips,
     fuelLogs
   ] = await Promise.all([
-    prisma.vehicle.findMany(),
+    prisma.vehicle.findMany({ where: vehicleWhereClause }),
     prisma.trip.count({ where: { status: 'Dispatched' } }),
     prisma.trip.count({ where: { status: 'Draft' } }),
     prisma.driver.count({ where: { status: 'On Trip' } }),
@@ -53,6 +60,10 @@ export default async function DashboardPage() {
           <h1>Dashboard</h1>
           <p className="text-secondary">Overview of your transport operations.</p>
         </div>
+      </div>
+
+      <div className="glass-card mb-6" style={{ padding: '1rem 1.5rem' }}>
+        <DashboardFilters initialType={type || ''} initialStatus={status || ''} />
       </div>
 
       <div style={{

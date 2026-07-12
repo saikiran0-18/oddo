@@ -21,15 +21,17 @@ interface SidebarProps {
 export default function Sidebar({ userRole }: SidebarProps) {
   const pathname = usePathname()
 
-  const navItems = [
-    { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
-    { name: 'Vehicles', href: '/vehicles', icon: Truck },
-    { name: 'Drivers', href: '/drivers', icon: Users },
-    { name: 'Trips', href: '/trips', icon: Route },
-    { name: 'Maintenance', href: '/maintenance', icon: Wrench },
-    { name: 'Expenses', href: '/expenses', icon: Receipt },
-    { name: 'Reports', href: '/reports', icon: BarChart3 },
+  const allNavItems = [
+    { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard, roles: ['Fleet Manager', 'Driver', 'Safety Officer', 'Financial Analyst'] },
+    { name: 'Vehicles', href: '/vehicles', icon: Truck, roles: ['Fleet Manager', 'Driver'] },
+    { name: 'Drivers', href: '/drivers', icon: Users, roles: ['Fleet Manager', 'Driver', 'Safety Officer'] },
+    { name: 'Trips', href: '/trips', icon: Route, roles: ['Fleet Manager', 'Driver'] },
+    { name: 'Maintenance', href: '/maintenance', icon: Wrench, roles: ['Fleet Manager', 'Financial Analyst'] },
+    { name: 'Expenses', href: '/expenses', icon: Receipt, roles: ['Fleet Manager', 'Financial Analyst'] },
+    { name: 'Reports', href: '/reports', icon: BarChart3, roles: ['Fleet Manager', 'Financial Analyst'] },
   ]
+
+  const navItems = allNavItems.filter(item => item.roles.includes(userRole))
 
   return (
     <aside style={{ 

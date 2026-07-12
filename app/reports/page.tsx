@@ -1,7 +1,7 @@
 export const dynamic = 'force-dynamic';
 import { prisma } from '@/lib/prisma'
 import { Activity, Droplet, DollarSign, TrendingUp } from 'lucide-react'
-import PrintButton from './components/PrintButton'
+import ExportCSV from './components/ExportCSV'
 
 export default async function ReportsPage() {
   const [vehicles, completedTrips, fuelLogs, maintenanceLogs] = await Promise.all([
@@ -43,6 +43,18 @@ export default async function ReportsPage() {
     { label: 'Vehicle ROI', value: `${roi.toFixed(2)}%`, icon: TrendingUp, color: 'var(--accent-secondary)' },
   ]
 
+  const csvData = vehicles.map(v => {
+    const vehicleTrips = completedTrips.filter(t => t.vehicleId === v.id)
+    const vehicleDistance = vehicleTrips.reduce((sum, t) => sum + (t.actualDistance || 0), 0)
+    return {
+      registrationNumber: v.registrationNumber,
+      completedTrips: vehicleTrips.length,
+      totalDistance: vehicleDistance,
+      acquisitionCost: v.acquisitionCost,
+      status: v.status
+    }
+  })
+
   return (
     <div className="animate-fade-in">
       <div className="flex justify-between items-center mb-6">
@@ -50,7 +62,7 @@ export default async function ReportsPage() {
           <h1>Reports & Analytics</h1>
           <p className="text-secondary">Key performance metrics and fleet insights.</p>
         </div>
-        <PrintButton />
+        <ExportCSV data={csvData} />
       </div>
 
       <div style={{
