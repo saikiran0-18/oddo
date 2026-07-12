@@ -47,8 +47,9 @@ model Trip {
   source          String
   destination     String
   cargoWeight     Float
-  plannedDistance Float
-  status          String  @default("Draft") // Draft, Dispatched, Completed, Cancelled
+  plannedDistance  Float
+  actualDistance   Float?  // Set on completion — real distance driven
+  status           String  @default("Draft") // Draft, Dispatched, Completed, Cancelled
 
   vehicleId       String
   vehicle         Vehicle @relation(fields: [vehicleId], references: [id])

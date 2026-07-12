@@ -1,35 +1,49 @@
 export const dynamic = 'force-dynamic';
 import { prisma } from '@/lib/prisma'
-import { Truck, Route, Wrench, Users, Percent } from 'lucide-react'
+import { Truck, Route, Wrench, Users, Percent, Activity } from 'lucide-react'
 
 export default async function DashboardPage() {
   const [
-    totalVehicles,
-    availableVehicles,
-    maintenanceVehicles,
+    vehicles,
     activeTrips,
     pendingTrips,
-    driversOnDuty
+    driversOnDuty,
+    completedTrips,
+    fuelLogs
   ] = await Promise.all([
-    prisma.vehicle.count(),
-    prisma.vehicle.count({ where: { status: 'Available' } }),
-    prisma.vehicle.count({ where: { status: 'In Shop' } }),
+    prisma.vehicle.findMany(),
     prisma.trip.count({ where: { status: 'Dispatched' } }),
     prisma.trip.count({ where: { status: 'Draft' } }),
-    prisma.driver.count({ where: { status: 'On Trip' } })
+    prisma.driver.count({ where: { status: 'On Trip' } }),
+    prisma.trip.findMany({ where: { status: 'Completed' } }),
+    prisma.fuelLog.findMany()
   ])
 
-  const fleetUtilization = totalVehicles > 0 
-    ? Math.round(((totalVehicles - availableVehicles - maintenanceVehicles) / totalVehicles) * 100) 
+  const nonRetired = vehicles.filter(v => v.status !== 'Retired')
+  const onTrip = vehicles.filter(v => v.status === 'On Trip').length
+  const inMaintenance = vehicles.filter(v => v.status === 'In Shop').length
+  const available = vehicles.filter(v => v.status === 'Available').length
+
+  // Fleet Utilization = vehicles On Trip / total non-retired vehicles × 100
+  const fleetUtilization = nonRetired.length > 0
+    ? Math.round((onTrip / nonRetired.length) * 100)
     : 0
 
+  // Fuel Efficiency = total actualDistance from completed trips / total fuel liters
+  const totalDistance = completedTrips.reduce((sum, t) => sum + (t.actualDistance || 0), 0)
+  const totalFuel = fuelLogs.reduce((sum, f) => sum + f.liters, 0)
+  const fuelEfficiency = (totalDistance > 0 && totalFuel > 0)
+    ? (totalDistance / totalFuel).toFixed(2) + ' km/L'
+    : 'N/A'
+
   const kpis = [
-    { label: 'Available Vehicles', value: availableVehicles, icon: Truck, color: 'var(--success)' },
-    { label: 'In Maintenance', value: maintenanceVehicles, icon: Wrench, color: 'var(--danger)' },
+    { label: 'Available Vehicles', value: available, icon: Truck, color: 'var(--success)' },
+    { label: 'In Maintenance', value: inMaintenance, icon: Wrench, color: 'var(--danger)' },
     { label: 'Active Trips', value: activeTrips, icon: Route, color: 'var(--accent-primary)' },
     { label: 'Pending Trips', value: pendingTrips, icon: Route, color: 'var(--warning)' },
     { label: 'Drivers On Duty', value: driversOnDuty, icon: Users, color: 'var(--accent-secondary)' },
     { label: 'Fleet Utilization', value: `${fleetUtilization}%`, icon: Percent, color: 'var(--text-primary)' },
+    { label: 'Fuel Efficiency', value: fuelEfficiency, icon: Activity, color: 'var(--success)' },
   ]
 
   return (

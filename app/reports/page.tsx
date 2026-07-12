@@ -4,21 +4,23 @@ import { Activity, Droplet, DollarSign, TrendingUp } from 'lucide-react'
 import PrintButton from './components/PrintButton'
 
 export default async function ReportsPage() {
-  const [vehicles, trips, fuelLogs, maintenanceLogs] = await Promise.all([
+  const [vehicles, completedTrips, fuelLogs, maintenanceLogs] = await Promise.all([
     prisma.vehicle.findMany(),
     prisma.trip.findMany({ where: { status: 'Completed' } }),
     prisma.fuelLog.findMany(),
     prisma.maintenanceLog.findMany()
   ])
 
-  // Fleet Utilization
-  const availableOrOnTrip = vehicles.filter(v => v.status === 'Available' || v.status === 'On Trip').length
-  const fleetUtilization = vehicles.length > 0 ? (availableOrOnTrip / vehicles.length) * 100 : 0
+  // Fleet Utilization = vehicles On Trip / total non-retired vehicles × 100
+  const nonRetired = vehicles.filter(v => v.status !== 'Retired')
+  const onTrip = vehicles.filter(v => v.status === 'On Trip').length
+  const fleetUtilization = nonRetired.length > 0 ? (onTrip / nonRetired.length) * 100 : 0
 
-  // Fuel Efficiency (Total Distance / Total Fuel)
-  const totalDistance = vehicles.reduce((sum, v) => sum + v.odometer, 0)
+  // Fuel Efficiency = (sum actualDistance from completed trips) / (sum fuel liters logged)
+  const totalDistance = completedTrips.reduce((sum, t) => sum + (t.actualDistance || 0), 0)
   const totalFuel = fuelLogs.reduce((sum, f) => sum + f.liters, 0)
-  const fuelEfficiency = totalFuel > 0 ? totalDistance / totalFuel : 0
+  const fuelEfficiencyValue = (totalDistance > 0 && totalFuel > 0) ? totalDistance / totalFuel : null
+  const fuelEfficiencyDisplay = fuelEfficiencyValue !== null ? `${fuelEfficiencyValue.toFixed(2)} km/L` : 'N/A'
 
   // Operational Cost (Fuel + Maintenance)
   const totalFuelCost = fuelLogs.reduce((sum, f) => sum + f.cost, 0)
@@ -36,7 +38,7 @@ export default async function ReportsPage() {
 
   const metrics = [
     { label: 'Fleet Utilization', value: `${fleetUtilization.toFixed(1)}%`, icon: Activity, color: 'var(--accent-primary)' },
-    { label: 'Fuel Efficiency', value: `${fuelEfficiency.toFixed(2)} km/L`, icon: Droplet, color: 'var(--success)' },
+    { label: 'Fuel Efficiency', value: fuelEfficiencyDisplay, icon: Droplet, color: 'var(--success)' },
     { label: 'Operational Cost', value: `$${operationalCost.toFixed(2)}`, icon: DollarSign, color: 'var(--warning)' },
     { label: 'Vehicle ROI', value: `${roi.toFixed(2)}%`, icon: TrendingUp, color: 'var(--accent-secondary)' },
   ]
@@ -85,22 +87,28 @@ export default async function ReportsPage() {
             <thead style={{ borderBottom: '1px solid var(--border-color)' }}>
               <tr>
                 <th style={{ padding: '1rem', color: 'var(--text-secondary)' }}>Vehicle</th>
-                <th style={{ padding: '1rem', color: 'var(--text-secondary)' }}>Odometer</th>
+                <th style={{ padding: '1rem', color: 'var(--text-secondary)' }}>Completed Trips</th>
+                <th style={{ padding: '1rem', color: 'var(--text-secondary)' }}>Total Distance</th>
                 <th style={{ padding: '1rem', color: 'var(--text-secondary)' }}>Acq. Cost</th>
                 <th style={{ padding: '1rem', color: 'var(--text-secondary)' }}>Status</th>
               </tr>
             </thead>
             <tbody>
-              {vehicles.map(v => (
-                <tr key={v.id} style={{ borderBottom: '1px solid var(--border-color)' }}>
-                  <td style={{ padding: '1rem', fontWeight: 500 }}>{v.registrationNumber}</td>
-                  <td style={{ padding: '1rem' }}>{v.odometer} km</td>
-                  <td style={{ padding: '1rem' }}>${v.acquisitionCost.toFixed(2)}</td>
-                  <td style={{ padding: '1rem' }}>
-                    <span className="badge badge-neutral">{v.status}</span>
-                  </td>
-                </tr>
-              ))}
+              {vehicles.map(v => {
+                const vehicleTrips = completedTrips.filter(t => t.vehicleId === v.id)
+                const vehicleDistance = vehicleTrips.reduce((sum, t) => sum + (t.actualDistance || 0), 0)
+                return (
+                  <tr key={v.id} style={{ borderBottom: '1px solid var(--border-color)' }}>
+                    <td style={{ padding: '1rem', fontWeight: 500 }}>{v.registrationNumber}</td>
+                    <td style={{ padding: '1rem' }}>{vehicleTrips.length}</td>
+                    <td style={{ padding: '1rem' }}>{vehicleDistance} km</td>
+                    <td style={{ padding: '1rem' }}>${v.acquisitionCost.toFixed(2)}</td>
+                    <td style={{ padding: '1rem' }}>
+                      <span className="badge badge-neutral">{v.status}</span>
+                    </td>
+                  </tr>
+                )
+              })}
             </tbody>
           </table>
         </div>
