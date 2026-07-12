@@ -52,14 +52,14 @@ export default async function AnalyticsPage() {
           }} />
         </Suspense>
         <Suspense fallback={<div>Loading Active Trips...</div>}>
-          <ChartWrapper type="bar" title="Active Trips per Vehicle" data={{{
+          <ChartWrapper type="bar" title="Active Trips per Vehicle" data={{
             labels: activeTrips.map(t => t.vehicleId),
             datasets: [{
               label: 'Active Trips',
               data: activeTrips.map(t => t._count._all),
               backgroundColor: '#f59e0b',
             }]
-          }}} />
+          }} />
         </Suspense>
       </div>
     </div>

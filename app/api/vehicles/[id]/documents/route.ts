@@ -3,8 +3,9 @@ import { prisma } from '@/lib/prisma';
 import { promises as fs } from 'fs';
 import path from 'path';
 
-export async function POST(request: Request, { params }: { params: { id: string } }) {
+export async function POST(request: Request, context: { params: Promise<{ id: string }> }) {
   try {
+    const params = await context.params;
     const formData = await request.formData();
     const file = formData.get('file') as File;
     if (!file) return NextResponse.json({ error: 'No file provided' }, { status: 400 });
@@ -16,10 +17,13 @@ export async function POST(request: Request, { params }: { params: { id: string 
     const filePath = path.join(uploadDir, file.name);
     await fs.writeFile(filePath, buffer);
 
-    const docMeta = { name: file.name, url: `/uploads/vehicle-docs/${params.id}/${file.name}`, uploadedAt: new Date().toISOString() };
-    await prisma.vehicle.update({
-      where: { id: params.id },
-      data: { documents: { push: docMeta } },
+    const docMeta = { name: file.name, url: `/uploads/vehicle-docs/${params.id}/${file.name}` };
+    await prisma.vehicleDocument.create({
+      data: {
+        name: docMeta.name,
+        url: docMeta.url,
+        vehicleId: params.id
+      },
     });
     return NextResponse.json({ success: true, document: docMeta });
   } catch (e) {
