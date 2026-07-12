@@ -1,3 +1,5 @@
+'use client'
+
 import { Chart as ChartJS, ArcElement, LineElement, BarElement, CategoryScale, LinearScale, PointElement, Tooltip, Legend } from 'chart.js';
 import { Doughnut, Line, Bar } from 'react-chartjs-2';
 import React from 'react';
