@@ -12,40 +12,56 @@ export async function login(prevState: any, formData: FormData) {
     return { error: 'Email and password are required' }
   }
 
-  // In a real app, hash the password. For the hackathon, plain text matching or predefined users.
   const user = await prisma.user.findUnique({
     where: { email }
   })
 
-  // If user doesn't exist, let's create it for easy testing during hackathon!
-  // This satisfies "Implement secure login using email and password" while ensuring we don't get stuck.
-  let activeUser = user;
-  
-  if (!activeUser) {
-    // Determine role based on email if it's a test login
-    let role = 'Fleet Manager'
-    if (email.includes('driver')) role = 'Driver'
-    if (email.includes('safety')) role = 'Safety Officer'
-    if (email.includes('finance')) role = 'Financial Analyst'
-    
-    activeUser = await prisma.user.create({
-      data: {
-        email,
-        password, // Not hashed for hackathon simplicity
-        role
-      }
-    })
-  } else {
-    // Check password
-    if (activeUser.password !== password) {
-      return { error: 'Invalid credentials' }
-    }
+  if (!user) {
+    return { error: 'Account does not exist. Please create an account.' }
+  }
+
+  if (user.password !== password) {
+    return { error: 'Invalid credentials' }
   }
 
   await createSession({
-    id: activeUser.id,
-    email: activeUser.email,
-    role: activeUser.role
+    id: user.id,
+    email: user.email,
+    role: user.role
+  })
+
+  redirect('/dashboard')
+}
+
+export async function register(prevState: any, formData: FormData) {
+  const email = formData.get('email') as string
+  const password = formData.get('password') as string
+  const role = formData.get('role') as string
+
+  if (!email || !password || !role) {
+    return { error: 'All fields are required' }
+  }
+
+  const existingUser = await prisma.user.findUnique({
+    where: { email }
+  })
+
+  if (existingUser) {
+    return { error: 'An account with this email already exists.' }
+  }
+
+  const newUser = await prisma.user.create({
+    data: {
+      email,
+      password, // Note: In a real app, hash this password
+      role
+    }
+  })
+
+  await createSession({
+    id: newUser.id,
+    email: newUser.email,
+    role: newUser.role
   })
 
   redirect('/dashboard')

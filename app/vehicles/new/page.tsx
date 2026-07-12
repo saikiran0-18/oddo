@@ -54,7 +54,7 @@ export default function NewVehiclePage() {
             </div>
 
             <div className="input-group w-full">
-              <label className="input-label" htmlFor="acquisitionCost">Acquisition Cost ($)</label>
+              <label className="input-label" htmlFor="acquisitionCost">Acquisition Cost (₹)</label>
               <input className="input-field" type="number" id="acquisitionCost" name="acquisitionCost" placeholder="45000" required min="0" step="0.01" />
             </div>
           </div>
