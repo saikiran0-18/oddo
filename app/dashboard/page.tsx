@@ -1,5 +1,5 @@
 import { prisma } from '@/lib/prisma'
-import { Truck, MapRoute, Wrench, Users, Percent } from 'lucide-react'
+import { Truck, Route, Wrench, Users, Percent } from 'lucide-react'
 
 export default async function DashboardPage() {
   const [
@@ -25,8 +25,8 @@ export default async function DashboardPage() {
   const kpis = [
     { label: 'Available Vehicles', value: availableVehicles, icon: Truck, color: 'var(--success)' },
     { label: 'In Maintenance', value: maintenanceVehicles, icon: Wrench, color: 'var(--danger)' },
-    { label: 'Active Trips', value: activeTrips, icon: MapRoute, color: 'var(--accent-primary)' },
-    { label: 'Pending Trips', value: pendingTrips, icon: MapRoute, color: 'var(--warning)' },
+    { label: 'Active Trips', value: activeTrips, icon: Route, color: 'var(--accent-primary)' },
+    { label: 'Pending Trips', value: pendingTrips, icon: Route, color: 'var(--warning)' },
     { label: 'Drivers On Duty', value: driversOnDuty, icon: Users, color: 'var(--accent-secondary)' },
     { label: 'Fleet Utilization', value: `${fleetUtilization}%`, icon: Percent, color: 'var(--text-primary)' },
   ]
