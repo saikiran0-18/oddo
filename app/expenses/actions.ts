@@ -3,7 +3,7 @@
 import { prisma } from '@/lib/prisma'
 import { redirect } from 'next/navigation'
 
-export async function createExpense(formData: FormData) {
+export async function createExpense(prevState: any, formData: FormData) {
   const category = formData.get('category') as string
   const description = formData.get('description') as string
   const amount = parseFloat(formData.get('amount') as string)

@@ -3,7 +3,7 @@
 import { prisma } from '@/lib/prisma'
 import { redirect } from 'next/navigation'
 
-export async function createVehicle(formData: FormData) {
+export async function createVehicle(prevState: any, formData: FormData) {
   const registrationNumber = formData.get('registrationNumber') as string
   const name = formData.get('name') as string
   const type = formData.get('type') as string

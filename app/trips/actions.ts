@@ -13,14 +13,14 @@ export async function createTrip(formData: FormData) {
   const driverId = formData.get('driverId') as string
 
   if (!source || !destination || isNaN(cargoWeight) || isNaN(plannedDistance) || !vehicleId || !driverId) {
-    return { error: 'All fields are required.' }
+    throw new Error('All fields are required.')
   }
 
   // Business Rule: Cargo Weight must not exceed the vehicle's maximum load capacity
   const vehicle = await prisma.vehicle.findUnique({ where: { id: vehicleId } })
-  if (!vehicle) return { error: 'Vehicle not found.' }
+  if (!vehicle) throw new Error('Vehicle not found.')
   if (cargoWeight > vehicle.maxLoadCapacity) {
-    return { error: `Cargo weight (${cargoWeight}kg) exceeds vehicle capacity (${vehicle.maxLoadCapacity}kg).` }
+    throw new Error(`Cargo weight (${cargoWeight}kg) exceeds vehicle capacity (${vehicle.maxLoadCapacity}kg).`)
   }
 
   try {
@@ -36,7 +36,7 @@ export async function createTrip(formData: FormData) {
       }
     })
   } catch (error: any) {
-    return { error: 'Failed to create trip.' }
+    throw new Error('Failed to create trip.')
   }
 
   redirect('/trips')

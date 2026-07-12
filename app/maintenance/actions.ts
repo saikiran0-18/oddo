@@ -10,12 +10,12 @@ export async function createMaintenanceLog(formData: FormData) {
   const cost = parseFloat(formData.get('cost') as string)
 
   if (!vehicleId || !description || isNaN(cost)) {
-    return { error: 'All fields are required.' }
+    throw new Error('All fields are required.')
   }
 
   const vehicle = await prisma.vehicle.findUnique({ where: { id: vehicleId } })
-  if (!vehicle) return { error: 'Vehicle not found.' }
-  if (vehicle.status === 'On Trip') return { error: 'Vehicle is currently on a trip.' }
+  if (!vehicle) throw new Error('Vehicle not found.')
+  if (vehicle.status === 'On Trip') throw new Error('Vehicle is currently on a trip.')
 
   try {
     await prisma.$transaction([
@@ -33,7 +33,7 @@ export async function createMaintenanceLog(formData: FormData) {
       })
     ])
   } catch (error: any) {
-    return { error: 'Failed to create maintenance log.' }
+    throw new Error('Failed to create maintenance log.')
   }
 
   redirect('/maintenance')

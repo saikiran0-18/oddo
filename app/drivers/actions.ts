@@ -3,7 +3,7 @@
 import { prisma } from '@/lib/prisma'
 import { redirect } from 'next/navigation'
 
-export async function createDriver(formData: FormData) {
+export async function createDriver(prevState: any, formData: FormData) {
   const name = formData.get('name') as string
   const licenseNumber = formData.get('licenseNumber') as string
   const licenseCategory = formData.get('licenseCategory') as string
