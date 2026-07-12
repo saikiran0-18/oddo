@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { getSession } from "@/lib/auth";
 import Sidebar from "@/components/Sidebar";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -20,6 +21,11 @@ export default async function RootLayout({
       <body className={session ? "flex" : ""}>
         {session && <Sidebar userRole={session.role} />}
         <main className={`w-full ${session ? 'p-6' : ''}`} style={{ flex: 1, height: '100vh', overflowY: 'auto' }}>
+          {session && (
+            <div className="flex justify-end mb-4">
+              <ThemeToggle />
+            </div>
+          )}
           {children}
         </main>
       </body>

@@ -8,7 +8,8 @@ export default async function EditVehiclePage({ params }: { params: Promise<{ id
   const { id } = await params
   
   const vehicle = await prisma.vehicle.findUnique({
-    where: { id }
+    where: { id },
+    include: { documents: true }
   })
 
   if (!vehicle) {

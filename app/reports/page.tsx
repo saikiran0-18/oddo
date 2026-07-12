@@ -2,11 +2,13 @@ export const dynamic = 'force-dynamic';
 import { prisma } from '@/lib/prisma'
 import { Activity, Droplet, DollarSign, TrendingUp } from 'lucide-react'
 import ExportCSV from './components/ExportCSV'
+import { ExportButton } from '@/components/ExportButton'
+import { ChartWrapper } from '@/components/ChartWrapper'
 
 export default async function ReportsPage() {
   const [vehicles, completedTrips, fuelLogs, maintenanceLogs] = await Promise.all([
     prisma.vehicle.findMany(),
-    prisma.trip.findMany({ where: { status: 'Completed' } }),
+    prisma.trip.findMany({ where: { status: 'Completed' }, include: { vehicle: true } }),
     prisma.fuelLog.findMany(),
     prisma.maintenanceLog.findMany()
   ])
@@ -19,8 +21,8 @@ export default async function ReportsPage() {
   // Fuel Efficiency = (sum actualDistance from completed trips) / (sum fuel liters logged)
   const totalDistance = completedTrips.reduce((sum, t) => sum + (t.actualDistance || 0), 0)
   const totalFuel = fuelLogs.reduce((sum, f) => sum + f.liters, 0)
-  const fuelEfficiencyValue = (totalDistance > 0 && totalFuel > 0) ? totalDistance / totalFuel : null
-  const fuelEfficiencyDisplay = fuelEfficiencyValue !== null ? `${fuelEfficiencyValue.toFixed(2)} km/L` : 'N/A'
+  const fuelEfficiencyValue = (totalDistance > 0 && totalFuel > 0) ? totalDistance / totalFuel : 0
+  const fuelEfficiencyDisplay = fuelEfficiencyValue > 0 ? `${fuelEfficiencyValue.toFixed(2)} km/L` : 'N/A'
 
   // Operational Cost (Fuel + Maintenance)
   const totalFuelCost = fuelLogs.reduce((sum, f) => sum + f.cost, 0)
@@ -55,14 +57,31 @@ export default async function ReportsPage() {
     }
   })
 
+  // Chart Data preparation
+  
+  // 1. Utilization Pie Chart
+  const availableVehicles = nonRetired.length - onTrip;
+  
+  // 2. Active Trips per vehicle (Bar Chart)
+  // Let's get active trips
+  const activeTripsList = await prisma.trip.findMany({ where: { status: 'Dispatched' }, include: { vehicle: true } });
+  const activeTripsPerVehicle: Record<string, number> = {};
+  activeTripsList.forEach(t => {
+    const vName = t.vehicle.registrationNumber;
+    activeTripsPerVehicle[vName] = (activeTripsPerVehicle[vName] || 0) + 1;
+  });
+
   return (
-    <div className="animate-fade-in">
+    <div className="animate-fade-in" id="reportRoot">
       <div className="flex justify-between items-center mb-6">
         <div>
           <h1>Reports & Analytics</h1>
-          <p className="text-secondary">Key performance metrics and fleet insights.</p>
+          <p className="text-secondary">Key performance metrics, visual analytics, and fleet insights.</p>
         </div>
-        <ExportCSV data={csvData} />
+        <div className="flex gap-2">
+          <ExportCSV data={csvData} />
+          <ExportButton />
+        </div>
       </div>
 
       <div style={{
@@ -90,6 +109,25 @@ export default async function ReportsPage() {
             </div>
           )
         })}
+      </div>
+
+      <div className="grid gap-6 md:grid-cols-2 mb-8">
+        <ChartWrapper type="pie" title="Fleet Utilization" data={{
+          labels: ['On Trip', 'Available'],
+          datasets: [{
+            data: [onTrip, availableVehicles],
+            backgroundColor: ['#4f46e5', '#10b981'],
+          }]
+        }} />
+
+        <ChartWrapper type="bar" title="Active Trips by Vehicle" data={{
+          labels: Object.keys(activeTripsPerVehicle).length > 0 ? Object.keys(activeTripsPerVehicle) : ['None'],
+          datasets: [{
+            label: 'Active Trips',
+            data: Object.keys(activeTripsPerVehicle).length > 0 ? Object.values(activeTripsPerVehicle) : [0],
+            backgroundColor: '#f59e0b',
+          }]
+        }} />
       </div>
 
       <div className="glass-card">

@@ -4,6 +4,7 @@ import { useActionState } from 'react'
 import { updateVehicle } from '../actions'
 import Link from 'next/link'
 import { ArrowLeft } from 'lucide-react'
+import { VehicleDocumentUpload } from '../../../../components/VehicleDocumentUpload'
 
 export function EditVehicleForm({ vehicle }: { vehicle: any }) {
   const updateVehicleWithId = updateVehicle.bind(null, vehicle.id)
@@ -69,6 +70,8 @@ export function EditVehicleForm({ vehicle }: { vehicle: any }) {
           </div>
         </form>
       </div>
+
+      <VehicleDocumentUpload vehicleId={vehicle.id} existingDocuments={vehicle.documents} />
     </div>
   )
 }
