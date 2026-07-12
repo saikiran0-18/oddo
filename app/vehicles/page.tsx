@@ -2,6 +2,7 @@ export const dynamic = 'force-dynamic';
 import { prisma } from '@/lib/prisma'
 import Link from 'next/link'
 import { Plus } from 'lucide-react'
+import { VehicleActions } from './components/VehicleActions'
 
 export default async function VehiclesPage() {
   const vehicles = await prisma.vehicle.findMany({
@@ -31,12 +32,13 @@ export default async function VehiclesPage() {
                 <th style={{ padding: '1rem', fontWeight: 600, color: 'var(--text-secondary)' }}>Type</th>
                 <th style={{ padding: '1rem', fontWeight: 600, color: 'var(--text-secondary)' }}>Capacity (kg)</th>
                 <th style={{ padding: '1rem', fontWeight: 600, color: 'var(--text-secondary)' }}>Status</th>
+                <th style={{ padding: '1rem', fontWeight: 600, color: 'var(--text-secondary)' }}>Actions</th>
               </tr>
             </thead>
             <tbody>
               {vehicles.length === 0 ? (
                 <tr>
-                  <td colSpan={5} style={{ padding: '2rem', textAlign: 'center', color: 'var(--text-secondary)' }}>
+                  <td colSpan={6} style={{ padding: '2rem', textAlign: 'center', color: 'var(--text-secondary)' }}>
                     No vehicles found. Add one to get started.
                   </td>
                 </tr>
@@ -54,6 +56,9 @@ export default async function VehiclesPage() {
                     }`}>
                       {vehicle.status}
                     </span>
+                  </td>
+                  <td style={{ padding: '1rem' }}>
+                    <VehicleActions id={vehicle.id} status={vehicle.status} />
                   </td>
                 </tr>
               ))}

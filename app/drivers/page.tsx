@@ -2,6 +2,7 @@ export const dynamic = 'force-dynamic';
 import { prisma } from '@/lib/prisma'
 import Link from 'next/link'
 import { Plus } from 'lucide-react'
+import { DriverActions } from './components/DriverActions'
 
 export default async function DriversPage() {
   const drivers = await prisma.driver.findMany({
@@ -32,12 +33,13 @@ export default async function DriversPage() {
                 <th style={{ padding: '1rem', fontWeight: 600, color: 'var(--text-secondary)' }}>Contact</th>
                 <th style={{ padding: '1rem', fontWeight: 600, color: 'var(--text-secondary)' }}>Safety Score</th>
                 <th style={{ padding: '1rem', fontWeight: 600, color: 'var(--text-secondary)' }}>Status</th>
+                <th style={{ padding: '1rem', fontWeight: 600, color: 'var(--text-secondary)' }}>Actions</th>
               </tr>
             </thead>
             <tbody>
               {drivers.length === 0 ? (
                 <tr>
-                  <td colSpan={6} style={{ padding: '2rem', textAlign: 'center', color: 'var(--text-secondary)' }}>
+                  <td colSpan={7} style={{ padding: '2rem', textAlign: 'center', color: 'var(--text-secondary)' }}>
                     No drivers found. Add one to get started.
                   </td>
                 </tr>
@@ -56,6 +58,9 @@ export default async function DriversPage() {
                     }`}>
                       {driver.status}
                     </span>
+                  </td>
+                  <td style={{ padding: '1rem' }}>
+                    <DriverActions id={driver.id} status={driver.status} />
                   </td>
                 </tr>
               ))}
