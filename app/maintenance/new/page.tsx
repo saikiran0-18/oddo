@@ -43,7 +43,7 @@ export default async function NewMaintenancePage() {
           </div>
 
           <div className="input-group w-full">
-            <label className="input-label" htmlFor="cost">Estimated Cost ($)</label>
+            <label className="input-label" htmlFor="cost">Estimated Cost (₹)</label>
             <input className="input-field" type="number" id="cost" name="cost" placeholder="150" required min="0" step="0.01" />
           </div>
 

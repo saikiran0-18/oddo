@@ -43,7 +43,7 @@ export default function NewExpensePage() {
           </div>
 
           <div className="input-group w-full">
-            <label className="input-label" htmlFor="amount">Amount ($)</label>
+            <label className="input-label" htmlFor="amount">Amount (₹)</label>
             <input className="input-field" type="number" id="amount" name="amount" placeholder="25" required min="0" step="0.01" />
           </div>
 

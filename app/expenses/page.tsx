@@ -35,7 +35,7 @@ export default async function ExpensesPage() {
       <div className="glass-card mb-6 flex justify-between items-center p-6">
         <div>
           <p className="text-secondary" style={{ fontSize: '0.875rem', fontWeight: 500 }}>Total Operational Cost</p>
-          <h2 style={{ fontSize: '2rem', color: 'var(--danger)', margin: 0 }}>${totalExpenses.toFixed(2)}</h2>
+          <h2 style={{ fontSize: '2rem', color: 'var(--danger)', margin: 0 }}>₹{totalExpenses.toFixed(2)}</h2>
         </div>
       </div>
 
@@ -47,7 +47,7 @@ export default async function ExpensesPage() {
                 <th style={{ padding: '1rem', fontWeight: 600, color: 'var(--text-secondary)' }}>Date</th>
                 <th style={{ padding: '1rem', fontWeight: 600, color: 'var(--text-secondary)' }}>Type</th>
                 <th style={{ padding: '1rem', fontWeight: 600, color: 'var(--text-secondary)' }}>Description</th>
-                <th style={{ padding: '1rem', fontWeight: 600, color: 'var(--text-secondary)' }}>Cost ($)</th>
+                <th style={{ padding: '1rem', fontWeight: 600, color: 'var(--text-secondary)' }}>Cost (₹)</th>
               </tr>
             </thead>
             <tbody>
@@ -64,7 +64,7 @@ export default async function ExpensesPage() {
                     <span className={`badge badge-neutral`}>{exp.type}</span>
                   </td>
                   <td style={{ padding: '1rem' }}>{exp.description}</td>
-                  <td style={{ padding: '1rem', fontWeight: 600 }}>${exp.cost.toFixed(2)}</td>
+                  <td style={{ padding: '1rem', fontWeight: 600 }}>₹{exp.cost.toFixed(2)}</td>
                 </tr>
               ))}
             </tbody>

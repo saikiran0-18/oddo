@@ -27,7 +27,7 @@ export default async function ReportsPage() {
   const totalMaintenanceCost = maintenanceLogs.reduce((sum, m) => sum + m.cost, 0)
   const operationalCost = totalFuelCost + totalMaintenanceCost
 
-  // Vehicle ROI (assuming a fixed revenue rate of $5 per km driven for this hackathon)
+  // Vehicle ROI (assuming a fixed revenue rate of ₹5 per km driven for this hackathon)
   const REVENUE_PER_KM = 5
   const totalRevenue = totalDistance * REVENUE_PER_KM
   const totalAcquisitionCost = vehicles.reduce((sum, v) => sum + v.acquisitionCost, 0)
@@ -39,7 +39,7 @@ export default async function ReportsPage() {
   const metrics = [
     { label: 'Fleet Utilization', value: `${fleetUtilization.toFixed(1)}%`, icon: Activity, color: 'var(--accent-primary)' },
     { label: 'Fuel Efficiency', value: fuelEfficiencyDisplay, icon: Droplet, color: 'var(--success)' },
-    { label: 'Operational Cost', value: `$${operationalCost.toFixed(2)}`, icon: DollarSign, color: 'var(--warning)' },
+    { label: 'Operational Cost', value: `₹${operationalCost.toFixed(2)}`, icon: DollarSign, color: 'var(--warning)' },
     { label: 'Vehicle ROI', value: `${roi.toFixed(2)}%`, icon: TrendingUp, color: 'var(--accent-secondary)' },
   ]
 
@@ -102,7 +102,7 @@ export default async function ReportsPage() {
                     <td style={{ padding: '1rem', fontWeight: 500 }}>{v.registrationNumber}</td>
                     <td style={{ padding: '1rem' }}>{vehicleTrips.length}</td>
                     <td style={{ padding: '1rem' }}>{vehicleDistance} km</td>
-                    <td style={{ padding: '1rem' }}>${v.acquisitionCost.toFixed(2)}</td>
+                    <td style={{ padding: '1rem' }}>₹{v.acquisitionCost.toFixed(2)}</td>
                     <td style={{ padding: '1rem' }}>
                       <span className="badge badge-neutral">{v.status}</span>
                     </td>

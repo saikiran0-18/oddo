@@ -101,7 +101,7 @@ export function TripActions({ tripId, status }: { tripId: string, status: string
             />
           </div>
           <div className="input-group" style={{ marginBottom: '1.5rem' }}>
-            <label className="input-label">Fuel Cost ($)</label>
+            <label className="input-label">Fuel Cost (₹)</label>
             <input 
               type="number" required min="0.01" step="0.01" 
               className="input-field" 
