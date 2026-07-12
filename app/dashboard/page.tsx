@@ -3,8 +3,6 @@ import { prisma } from '@/lib/prisma'
 import { Truck, Route, Wrench, Users, Percent, Activity } from 'lucide-react'
 import DashboardFilters from './components/DashboardFilters'
 
-import { GanttChart } from '@/components/GanttChart'
-
 export default async function DashboardPage({ searchParams }: { searchParams: Promise<{ type?: string, status?: string }> }) {
   const { type, status } = await searchParams;
 
@@ -18,30 +16,15 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
     pendingTrips,
     driversOnDuty,
     completedTrips,
-    fuelLogs,
-    allTripsData
+    fuelLogs
   ] = await Promise.all([
     prisma.vehicle.findMany({ where: vehicleWhereClause }),
     prisma.trip.count({ where: { status: 'Dispatched' } }),
     prisma.trip.count({ where: { status: 'Draft' } }),
     prisma.driver.count({ where: { status: 'On Trip' } }),
     prisma.trip.findMany({ where: { status: 'Completed' } }),
-    prisma.fuelLog.findMany(),
-    prisma.trip.findMany({ 
-      include: { vehicle: true },
-      orderBy: { createdAt: 'asc' }
-    })
+    prisma.fuelLog.findMany()
   ])
-
-  const allTrips = allTripsData.map(t => ({
-    id: t.id,
-    vehicleReg: t.vehicle.registrationNumber,
-    source: t.source,
-    destination: t.destination,
-    status: t.status,
-    createdAt: t.createdAt,
-    plannedDistance: t.plannedDistance
-  }))
 
   const nonRetired = vehicles.filter(v => v.status !== 'Retired')
   const onTrip = vehicles.filter(v => v.status === 'On Trip').length
@@ -107,10 +90,6 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
             </div>
           )
         })}
-      </div>
-
-      <div className="mt-6 mb-8">
-        <GanttChart trips={allTrips} />
       </div>
     </div>
   )
