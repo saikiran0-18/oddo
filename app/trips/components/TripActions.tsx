@@ -1,17 +1,21 @@
 'use client'
 
 import { dispatchTrip, completeTrip, cancelTrip } from '../actions'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { createPortal } from 'react-dom'
 import { Play, Check, X, FileText } from 'lucide-react'
 
 export function TripActions({ tripId, status }: { tripId: string, status: string }) {
   const [isProcessing, setIsProcessing] = useState(false)
   const [showCompleteModal, setShowCompleteModal] = useState(false)
+  const [mounted, setMounted] = useState(false)
 
   // Complete Trip Form State
-  const [odometer, setOdometer] = useState('')
+  const [distance, setDistance] = useState('')
   const [fuelLiters, setFuelLiters] = useState('')
   const [fuelCost, setFuelCost] = useState('')
+
+  useEffect(() => { setMounted(true) }, [])
 
   const handleDispatch = async () => {
     setIsProcessing(true)
@@ -38,13 +42,85 @@ export function TripActions({ tripId, status }: { tripId: string, status: string
     e.preventDefault()
     setIsProcessing(true)
     try {
-      await completeTrip(tripId, parseFloat(odometer), parseFloat(fuelLiters), parseFloat(fuelCost))
+      await completeTrip(tripId, parseFloat(distance), parseFloat(fuelLiters), parseFloat(fuelCost))
       setShowCompleteModal(false)
     } catch (e: any) {
       alert(e.message)
     }
     setIsProcessing(false)
   }
+
+  const modal = showCompleteModal && mounted ? createPortal(
+    <div 
+      style={{
+        position: 'fixed', 
+        top: 0, left: 0, right: 0, bottom: 0,
+        background: 'rgba(0,0,0,0.6)',
+        backdropFilter: 'blur(4px)',
+        zIndex: 9999,
+        display: 'flex', 
+        alignItems: 'center', 
+        justifyContent: 'center',
+        padding: '1rem'
+      }}
+      onClick={() => setShowCompleteModal(false)}
+    >
+      <div 
+        className="glass-card animate-fade-in" 
+        style={{ 
+          width: '100%',
+          maxWidth: '440px', 
+          background: 'var(--bg-secondary)',
+          border: '1px solid var(--border-color)',
+          boxShadow: '0 25px 50px rgba(0,0,0,0.5)'
+        }}
+        onClick={e => e.stopPropagation()}
+      >
+        <h3 style={{ marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <FileText size={20} /> Complete Trip
+        </h3>
+        <form onSubmit={handleComplete}>
+          <div className="input-group" style={{ marginBottom: '1rem' }}>
+            <label className="input-label">Distance Traveled (km)</label>
+            <input 
+              type="number" required min="0.1" step="0.1" 
+              className="input-field" 
+              placeholder="e.g. 120"
+              value={distance} 
+              onChange={e => setDistance(e.target.value)} 
+            />
+          </div>
+          <div className="input-group" style={{ marginBottom: '1rem' }}>
+            <label className="input-label">Fuel Consumed (Liters)</label>
+            <input 
+              type="number" required min="0.1" step="0.1" 
+              className="input-field" 
+              placeholder="e.g. 15"
+              value={fuelLiters} 
+              onChange={e => setFuelLiters(e.target.value)} 
+            />
+          </div>
+          <div className="input-group" style={{ marginBottom: '1.5rem' }}>
+            <label className="input-label">Fuel Cost ($)</label>
+            <input 
+              type="number" required min="0.01" step="0.01" 
+              className="input-field" 
+              placeholder="e.g. 45.00"
+              value={fuelCost} 
+              onChange={e => setFuelCost(e.target.value)} 
+            />
+          </div>
+          <div className="flex justify-end gap-2">
+            <button type="button" onClick={() => setShowCompleteModal(false)} className="btn btn-secondary">Cancel</button>
+            <button type="submit" disabled={isProcessing} className="btn btn-primary">
+              {isProcessing ? 'Saving...' : 'Confirm Completion'}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>,
+    document.body
+  ) : null
 
   return (
     <>
@@ -68,36 +144,7 @@ export function TripActions({ tripId, status }: { tripId: string, status: string
         )}
       </div>
 
-      {showCompleteModal && (
-        <div style={{
-          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, 
-          background: 'rgba(0,0,0,0.5)', zIndex: 50, display: 'flex', alignItems: 'center', justifyContent: 'center'
-        }}>
-          <div className="glass-card animate-fade-in" style={{ width: '400px', background: 'var(--bg-secondary)' }}>
-            <h3 style={{ marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <FileText size={20} /> Complete Trip
-            </h3>
-            <form onSubmit={handleComplete} className="flex-col gap-4">
-              <div className="input-group">
-                <label className="input-label">Distance Traveled (Odometer increase)</label>
-                <input type="number" required min="0" step="0.1" className="input-field" value={odometer} onChange={e => setOdometer(e.target.value)} />
-              </div>
-              <div className="input-group">
-                <label className="input-label">Fuel Consumed (Liters)</label>
-                <input type="number" required min="0" step="0.1" className="input-field" value={fuelLiters} onChange={e => setFuelLiters(e.target.value)} />
-              </div>
-              <div className="input-group">
-                <label className="input-label">Fuel Cost ($)</label>
-                <input type="number" required min="0" step="0.01" className="input-field" value={fuelCost} onChange={e => setFuelCost(e.target.value)} />
-              </div>
-              <div className="flex justify-end gap-2 mt-4">
-                <button type="button" onClick={() => setShowCompleteModal(false)} className="btn btn-secondary">Cancel</button>
-                <button type="submit" disabled={isProcessing} className="btn btn-primary">Confirm</button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
+      {modal}
     </>
   )
 }
