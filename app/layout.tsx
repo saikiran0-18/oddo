@@ -19,6 +19,7 @@ export default async function RootLayout({
   return (
     <html lang="en">
       <body className={session ? "flex" : ""}>
+        <div className="aurora-bg" />
         {session && <Sidebar userRole={session.role} />}
         <main className={`w-full ${session ? 'p-6' : ''}`} style={{ flex: 1, height: '100vh', overflowY: 'auto' }}>
           {session && (
