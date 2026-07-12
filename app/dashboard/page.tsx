@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic';
 import { prisma } from '@/lib/prisma'
 import { Truck, Route, Wrench, Users, Percent } from 'lucide-react'
 

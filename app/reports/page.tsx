@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic';
 import { prisma } from '@/lib/prisma'
 import { Activity, Droplet, DollarSign, TrendingUp } from 'lucide-react'
 import PrintButton from './components/PrintButton'
